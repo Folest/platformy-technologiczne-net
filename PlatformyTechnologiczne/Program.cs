@@ -12,6 +12,7 @@ namespace PlatformyTechnologiczne
             var prefix = new string('-', 3 * depth);
             var sb = new StringBuilder();
 
+            // The size of directory overlap can be changed by the number in take last here.
             var fileNames = Directory.EnumerateFiles(directory)
                                      .Select(filenameWithPath => filenameWithPath.Split('\\').TakeLast(2).Aggregate("", (acc, next) => acc + '\\' + next))
                                      .ToList();
@@ -38,12 +39,35 @@ namespace PlatformyTechnologiczne
             return sb.ToString();
         }
 
+
         static void Main(string[] args)
         {
-            var directory = args[0];
-            Console.WriteLine($"Elements in {directory}");
+            Console.Write("Zadanie 1. \n\n");
 
+            var directory = args[0];
+
+            Console.WriteLine($"Elements in {directory}");
             Console.Write(PrintDirectory(directory, true));
+
+
+            Console.Write("\n\nZadanie 2. \n\n");
+
+            var dirInfo = new DirectoryInfo(@"C:\Users\Karol\Downloads\new");
+            Console.WriteLine($"Looking for the file/directory which was modified the longest time ago in {dirInfo}");
+
+
+
+            var oldestChildren = dirInfo.OldestChildrenDate(fsi => fsi.LastWriteTime);
+            Console.WriteLine(oldestChildren != DateTime.MaxValue 
+                                                ? oldestChildren.ToString() 
+                                                : "Directory with given path is empty or the file system is corrupted");
+
+
+            Console.Write("\n\nZadanie 3. \n\n");
+
+            var info = new FileInfo(@"C:\Users\Karol\Downloads\extra_warranties.pdf");
+            Console.WriteLine(info.GetAttributesRahs());
         }
     }
+
 }
