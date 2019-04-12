@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace PlatformyTechnologiczne
 
     class Program
     { 
-        static string PrintDirectory(string directory, bool recursive = false, int depth = 1)
+        static string PrintDirectory(string directory, bool recursive = false, int depth = 1, int overlap = 1)
         {
             var prefix = new string('\t', depth);
             var sb = new StringBuilder();
@@ -18,7 +19,7 @@ namespace PlatformyTechnologiczne
                                      .Select(filenameWithPath =>
                                      {
                                          var fileInfo = new FileInfo(filenameWithPath);
-                                         return filenameWithPath.Split('\\').TakeLast(2).Aggregate("", (acc, next) => $"{acc}\\{next}") + $"\t{fileInfo.Length} bajtów";
+                                         return filenameWithPath.Split('\\').TakeLast(overlap).Aggregate("", (acc, next) => $"{acc}\\{next}") + $"\t{fileInfo.Length} bajtów";
                                      })
                                      .ToList();
 
@@ -31,17 +32,13 @@ namespace PlatformyTechnologiczne
             var allNames = fileNames.Concat(directoryNames).ToList();
 
             allNames.Sort();
-            directory = directory.Split('\\').TakeLast(2)
+            directory = directory.Split('\\').TakeLast(overlap)
                 .Aggregate("", (acc, next) => 
                 {
                     var dirInfo = new DirectoryInfo(directory);
                     return $"{acc}\\{next} ({dirInfo.GetFiles().Count()})";
-                    // this prevents the structure being like Dir (3)\ Child (0) 
-                    // and makes this instead Dir\Child(0)
                 });
-            sb.Append($"{(allNames.Count > 0 ? $"{directory}\n" : directory)}");
-
-
+            sb.Append($"{(allNames.Count > 0 ? $"{directory} \n" : directory)}");
 
             allNames.ForEach(x =>
             {
@@ -82,6 +79,25 @@ namespace PlatformyTechnologiczne
             Console.WriteLine(info.GetAttributesRahs());
 
             Console.Write("\n\nZadanie 4. \n\n");
+
+            dirInfo = new DirectoryInfo(directory);
+            var sortedCollection = new SortedDictionary<string, long>(Comparer<string>.Create((a, b) => a.Length == b.Length ?
+                                                                                                      a.CompareTo(b) : 
+                                                                                                      a.Length > b.Length ? 1 : -1));
+
+            dirInfo.EnumerateFileSystemInfos()
+                .ToList()
+                .ForEach(x =>
+                {
+                    var isDirectory = File.GetAttributes(x.FullName).HasFlag(FileAttributes.Directory);
+                    // Adding name and amount of children if it's a directory and file size otherwise
+                    sortedCollection.Add(x.FullName, isDirectory ?
+                                                             Directory.EnumerateFileSystemEntries(x.FullName).LongCount() :
+                                                             new FileInfo(x.FullName).Length);  
+                }
+                );
+
+            sortedCollection.ToList().ForEach(kv => Console.WriteLine(kv.Key));
 
         }
     }
