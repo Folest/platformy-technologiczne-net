@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,7 +34,7 @@ namespace PlatformyTechnologiczne
             var attributes = fileSystemInfo.Attributes;
             var sb = new StringBuilder();
 
-            sb.Append( (attributes.HasFlag(FileAttributes.ReadOnly) ? "r" : "-") 
+            sb.Append((attributes.HasFlag(FileAttributes.ReadOnly) ? "r" : "-")
                       + (attributes.HasFlag(FileAttributes.Archive) ? "a" : "-")
                       + (attributes.HasFlag(FileAttributes.System) ? "s" : "-")
                       + (attributes.HasFlag(FileAttributes.Hidden) ? "h" : "-"));

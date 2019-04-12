@@ -5,16 +5,21 @@ using System.Text;
 
 namespace PlatformyTechnologiczne
 {
+
     class Program
     { 
         static string PrintDirectory(string directory, bool recursive = false, int depth = 1)
         {
-            var prefix = new string('-', 3 * depth);
+            var prefix = new string('\t', depth);
             var sb = new StringBuilder();
 
             // The size of directory overlap can be changed by the number in take last here.
             var fileNames = Directory.EnumerateFiles(directory)
-                                     .Select(filenameWithPath => filenameWithPath.Split('\\').TakeLast(2).Aggregate("", (acc, next) => acc + '\\' + next))
+                                     .Select(filenameWithPath =>
+                                     {
+                                         var fileInfo = new FileInfo(filenameWithPath);
+                                         return filenameWithPath.Split('\\').TakeLast(2).Aggregate("", (acc, next) => $"{acc}\\{next}") + $"\t{fileInfo.Length} bajtów";
+                                     })
                                      .ToList();
 
             var directoryNames = Directory.EnumerateDirectories(directory)
@@ -26,8 +31,17 @@ namespace PlatformyTechnologiczne
             var allNames = fileNames.Concat(directoryNames).ToList();
 
             allNames.Sort();
-            directory = directory.Split('\\').TakeLast(2).Aggregate("", (acc, next) => acc + '\\' + next);
-            sb.Append(allNames.Count() > 0 ? directory + '\n' : directory);
+            directory = directory.Split('\\').TakeLast(2)
+                .Aggregate("", (acc, next) => 
+                {
+                    var dirInfo = new DirectoryInfo(directory);
+                    return $"{acc}\\{next} ({dirInfo.GetFiles().Count()})";
+                    // this prevents the structure being like Dir (3)\ Child (0) 
+                    // and makes this instead Dir\Child(0)
+                });
+            sb.Append($"{(allNames.Count > 0 ? $"{directory}\n" : directory)}");
+
+
 
             allNames.ForEach(x =>
             {
@@ -64,9 +78,11 @@ namespace PlatformyTechnologiczne
 
 
             Console.Write("\n\nZadanie 3. \n\n");
-
             var info = new FileInfo(@"C:\Users\Karol\Downloads\extra_warranties.pdf");
             Console.WriteLine(info.GetAttributesRahs());
+
+            Console.Write("\n\nZadanie 4. \n\n");
+
         }
     }
 
