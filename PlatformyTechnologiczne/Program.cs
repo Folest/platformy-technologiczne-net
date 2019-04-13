@@ -7,7 +7,6 @@ using System.Text;
 
 namespace PlatformyTechnologiczne
 {
-
     class Program
     { 
         static string PrintDirectory(string directory, bool recursive = false, int depth = 1, int overlap = 1)
@@ -50,8 +49,6 @@ namespace PlatformyTechnologiczne
             });
             return sb.ToString();
         }
-
-
         static void Main(string[] args)
         {
             Console.Write("Zadanie 1. \n\n");
@@ -64,8 +61,8 @@ namespace PlatformyTechnologiczne
 
             Console.Write("\n\nZadanie 2. \n\n");
 
-            var dirInfo = new DirectoryInfo(@"C:\Users\Karol\Downloads\new");
-            Console.WriteLine($"Looking for the file/directory which was modified the longest time ago in {dirInfo}");
+            var dirInfo = new DirectoryInfo(@"C:\Users\Karol\Downloads");
+            Console.WriteLine($"Looking for the file/directory which was modified the longest time ago in {dirInfo}:\n");
 
 
 
@@ -100,7 +97,6 @@ namespace PlatformyTechnologiczne
                 }
                 );
 
-
             Console.WriteLine("Before serialization: \n");
             sortedCollection.ToList().ForEach(kv => Console.WriteLine($"{kv.Key} : {kv.Value}"));
 
@@ -110,30 +106,24 @@ namespace PlatformyTechnologiczne
 
             var kilo = (int)Math.Pow(2, 10);
 
-            var serializedFilePath = "serializedCollection";
-
-            using (var serializedDest = File.Create("serializedCollection"))
+            using(var ms = new MemoryStream(10 * kilo))
             {
                 try
                 {
-                    binaryFormatter.Serialize(serializedDest, sortedCollection.ToList());
-                    serializedDest.Close();
+                    binaryFormatter.Serialize(ms, sortedCollection.ToList());
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine($"Failed to serialize cuz: ${e.Message}");
                 }
-            }
 
-            using (var serializedSource = File.OpenRead(serializedFilePath))
-            {
                 try
                 {
-
-                    var deserialized = (List<KeyValuePair<string, long>>)binaryFormatter.Deserialize(serializedSource);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    var deserialized = (List<KeyValuePair<string, long>>)binaryFormatter.Deserialize(ms);
                     Console.WriteLine("After serialization");
                     sortedCollection.Clear();
-                    Console.WriteLine($"Initial collection size: {sortedCollection.Count()}");
+                    Console.WriteLine($"Initial collection size: {(sortedCollection.Count() == 0 ? " empty" : $"{sortedCollection.Count.ToString()}")}");
                     deserialized.ForEach(x => sortedCollection.Add(x.Key, x.Value));
                     sortedCollection.ToList().ForEach(x => Console.WriteLine($"{x.Key} -> {x.Value}"));
 
@@ -145,5 +135,4 @@ namespace PlatformyTechnologiczne
             }
         }
     }
-
 }
