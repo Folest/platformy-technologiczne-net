@@ -2,9 +2,9 @@
 {
     public class Car
     {
-        public string Model;
-        public Engine Motor;
-        public int Year;
+        public string Model { get; set; }
+        public Engine Motor { get; set; }
+        public int Year { get; set; }
 
         public Car(string model, Engine engine, int year)
         {
